@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QAppl
 from picamera2.previews.qt import QGlPicamera2
 from picamera2 import Picamera2
 
+# 4056x3040 camera dimension
+# 2028x1520
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 now = None
