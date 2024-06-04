@@ -17,7 +17,7 @@ now = None
 def post_callback(request):
     t = ''.join("{}: {}\n".format(k, v) for k, v in request.get_metadata().items())
     print(t)
-    label.setText(t)
+    # label.setText(t)
 
 def save_to_s3(filename, path):
     s3 = boto3.resource('s3')
@@ -30,12 +30,11 @@ def save_to_s3(filename, path):
 def on_button_clicked():
     global now
     button.setEnabled(False)
-    cfg = picam2.still_configuration()
     now = datetime.now() # current date and time
     d = now.strftime("%m-%d-%Y_%H-%M-%S")
     filename = f"{d}.jpg"
 
-    picam2.switch_mode_and_capture_file(cfg, filename, wait=False, signal_function=qpicamera2.signal_done)
+    picam2.switch_mode_and_capture_file(capture_config, filename, wait=False, signal_function=qpicamera2.signal_done)
 
 # Renable button and save image to S3 bucket
 def capture_done():
@@ -51,18 +50,24 @@ def capture_done():
 
 picam2 = Picamera2()
 picam2.post_callback = post_callback
-picam2.configure(picam2.preview_configuration(main={"size": (SCREEN_WIDTH, SCREEN_HEIGHT)}))
+picam2.configure(picam2.create_preview_configuration(main={"size": (SCREEN_WIDTH, SCREEN_HEIGHT)}))
+capture_config = picam2.create_still_configuration(main={"size": (SCREEN_WIDTH, SCREEN_HEIGHT)})
 
 app = QApplication([])
 
 qpicamera2 = QGlPicamera2(picam2, width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
 button = QPushButton("CAPTURE")
+# label = QLabel()
 window = QWidget()
 qpicamera2.done_signal.connect(capture_done)
 button.clicked.connect(on_button_clicked)
 
+# label.setFixedWidth(400)
+# label.setAlignment(QtCore.Qt.AlignTop)
+
 layout = QGridLayout()
 
+# layout.addWidget(label)
 layout.addWidget(qpicamera2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 button.setFixedHeight(125)
 button.setStyleSheet("background-color: rgba(255, 255, 255, 0.2); border: none; color: black; font-weight: bold;")
